@@ -26,6 +26,9 @@ import xarray as xr
 from    netCDF4         import date2index
 
 
+matplotlib.use("TkAgg")
+
+
 #reload(ffc)
 
 #read in raw ARM SGP 1997 summer data input file
@@ -39,7 +42,8 @@ case_period_end_datetimes =   [cf.datetime(2014,3,26 ,0,0,0),
                               ]
 
 lat   = -3.15000 #degrees north
-lon   = -60.0
+lon   = -60.0    #degrees E
+z_sfc = 63 # [m]
 
 #lat   = iop1.lat[0]#degrees north
 #lon   = iop1.lon[0]
@@ -57,6 +61,7 @@ h_advec_s ,v_advec_s ,ds_dt,rad_heating,\
 u_wind,v_wind,u_g,v_g,v_advec_thil,w_sub,omega,\
 phi_s,T_surf,p_surf,height,\
 levels,sh_flux_sfc,lh_flux_sfc=cal.variables_metpy_scm_ccpp(iop1)
+
 
 #Call atm trop to get the O3
 o3=std.call_read_atm(trop_atm,levels,T_abs)
@@ -134,10 +139,15 @@ for i in range(len(case_period_labels)):
     writefile_height_var.units = 'm'
     writefile_height_var.description = 'physical height at pressure levels'
 
+
     writefile_thetail_var = writefile_initial_grp.createVariable('thetail', 'f4', ('levels',))
     writefile_thetail_var[:] = thetal[:,start_t_index]
     writefile_thetail_var.units = 'K'
     writefile_thetail_var.description = 'initial profile of ice-liquid water potential temperature'
+
+
+
+
 
     writefile_qt_var = writefile_initial_grp.createVariable('qt', 'f4', ('levels',))
     writefile_qt_var[:] = qt[:,start_t_index]
@@ -158,6 +168,13 @@ for i in range(len(case_period_labels)):
     writefile_u_var[:] = u_wind[:,start_t_index]
     writefile_u_var.units = 'm s^-1'
     writefile_u_var.description = 'initial profile of E-W horizontal wind'
+
+
+
+
+
+
+
 
     writefile_v_var = writefile_initial_grp.createVariable('v', 'f4', ('levels',))
     writefile_v_var[:] = v_wind[:,start_t_index]
@@ -195,6 +212,39 @@ for i in range(len(case_period_labels)):
     writefile_lh_flux_sfc_var[:] = lh_flux_sfc[start_t_index:end_t_index]
     writefile_lh_flux_sfc_var.units = 'kg kg^-1 m s^-1'
     writefile_lh_flux_sfc_var.description = 'surface latent heat flux'
+
+    #fig   = plt.figure()
+    #ax    = plt.axes()
+    #plt.plot(u_wind,height)
+
+    #fig   = plt.figure()
+    #ax    = plt.axes()
+    #plt.plot(v_wind,height)
+
+    #fig   = plt.figure()
+    #ax    = plt.axes()
+    #plt.plot(w_sub,height)
+    #plt.show()
+
+    fig   = plt.figure()
+    ax    = plt.axes()
+    plt.plot(time,lh_flux_sfc)
+
+    fig   = plt.figure()
+    ax    = plt.axes()
+    plt.plot(time,sh_flux_sfc)
+    plt.show()
+    plt.show()
+
+    exit()
+
+
+
+
+
+
+
+
 
     writefile_w_ls_var = writefile_forcing_grp.createVariable('w_ls', 'f4', ('levels','time',))
     writefile_w_ls_var[:] = w_sub[:,start_t_index:end_t_index]
