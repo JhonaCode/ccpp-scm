@@ -23,19 +23,20 @@ def variables_metpy_scm_ccpp(exp):
     q_ls_u     =   units.Quantity(exp.divq[:,::-1,0,0],'kg/kg/s')
 
     #vertdivq#"Vertical q advection""kg/kg/s" ;
-    vqadv_u       =   units.Quantity(exp.vertdivq[:,::-1,0,0],'kg/kg/s')
+    vqadv_u    =   units.Quantity(exp.vertdivq[:,::-1,0,0],'kg/kg/s')
+
 
     #T tendency "K/s"
-    dqdt_u       =   units.Quantity(exp.dqdt[:,::-1,0,0],'kg/kg/s')
+    dqdt_u     =   units.Quantity(exp.dqdt[:,::-1,0,0],'kg/kg/s')
 
     #divT    #"Horizontal Temp advection" units = "K/s";
     t_ls_u     =   units.Quantity(exp.divT[:,::-1,0,0],'kelvin/s')
 
     #T tendency "K/s"
-    dTdt_u       =   units.Quantity(exp.dTdt[:,::-1,0,0],'kelvin/s')
+    dTdt_u     =   units.Quantity(exp.dTdt[:,::-1,0,0],'kelvin/s')
 
     #vertdivT#"Vertical Temp advection""K/s"
-    vTadv_u       =   units.Quantity(exp.vertdivT[:,::-1,0,0],'kelvin/s')
+    vTadv_u    =   units.Quantity(exp.vertdivT[:,::-1,0,0],'kelvin/s')
     
     #s       #"Dry satic energy/Cp" units = "K" ;
     #divs    #"Hori. dry static energy adv./Cp" units = "K/s" ;
@@ -70,21 +71,7 @@ def variables_metpy_scm_ccpp(exp):
     #convert to specific humidity from mixing ratio
     q_ls_u           =   q_ls_u/(1.0 + mr_u)**2 
     vqadv_u          =  vqadv_u/(1.0 + mr_u)**2 
-    dqdt_u           =  dqdt_u/(1.0 + mr_u)**2 
-     
-    
-    #ql and tke are not specified; set to zero
-    ql  = np.zeros((ndtp,ndlev),dtype=float)
-    qi  = np.zeros((ndtp,ndlev),dtype=float)
-    tke = np.zeros((ndtp,ndlev),dtype=float)
-
-    rad_heating = np.zeros((ndtp,ndlev),dtype=float)
-    u_g = np.zeros((ndtp,ndlev),dtype=float)
-    v_g = np.zeros((ndtp,ndlev),dtype=float)
-    h_advec_thil = np.zeros((ndtp,ndlev),dtype=float)
-    v_advec_thil = np.zeros((ndtp,ndlev),dtype=float)
-
-
+    dqdt_u           =   dqdt_u/(1.0 + mr_u)**2 
 
 
     prec_srf_u    =   units.Quantity(exp.prec_srf[:,0,0],'mm/hour')
@@ -97,12 +84,11 @@ def variables_metpy_scm_ccpp(exp):
     #LEVS         =   np.flipud(LEVS)
     #print(LEVS)
 
-    p_sur_u   =   units.Quantity(exp.Ps[::-1], 'Pa')
+    p_sur_u   =   units.Quantity(exp.Ps[:,0,0], 'Pa')
 
 
-    phi_u   =   units.Quantity(exp.phis[:],'m^2/s^2')
+    phi_u   =   units.Quantity(exp.phis[0,0],'m^2/s^2')
 
-    
 
     u_u           =   units.Quantity(exp.u[:,::-1,0,0],'m/s')
     v_u           =   units.Quantity(exp.v[:,::-1,0,0],'m/s')
@@ -110,6 +96,7 @@ def variables_metpy_scm_ccpp(exp):
     omega_u       =   units.Quantity(exp.omega[:,::-1,0,0],'Pa/s')
 
     w_u           =   metpy.calc.vertical_velocity(omega_u, pressure_u, T_u, mr_u)
+
 
     #w_sub = np.zeros((ndtp,ndlev),dtype=float)
     #for t in range(ndtp):
@@ -127,12 +114,12 @@ def variables_metpy_scm_ccpp(exp):
     theta_u       =   metpy.calc.potential_temperature(pressure_u, T_u)
 
 
-    #unidades estao erradas par apoder fazer a transformacao
-    h_Tadv_u  =   units.Quantity(exp.divT[:,::-1,0,0],'kelvin')
+    #unidades estao erradas par apoder fazer a transformacao é K/s
+    h_advec_T_u    =   units.Quantity(exp.divT[:,::-1,0,0],'kelvin')
 
-    hTadv       =   metpy.calc.potential_temperature(pressure_u, h_Tadv_u).magnitude
+    h_advec_thil   =   metpy.calc.potential_temperature(pressure_u, h_advec_T_u).magnitude
 
-    hTadv_u       =   units.Quantity(hTadv,'kelvin/s') 
+    h_advec_thil_u =   units.Quantity(h_advec_thil,'kelvin/s') 
 
     #h_advec_thil = np.zeros((ndtp,ndlev),dtype=float)
 
@@ -143,7 +130,13 @@ def variables_metpy_scm_ccpp(exp):
     #print(h_advec_thil[0:10,20])
     #print(t_ls_u[0:10,20])
 
-    
+    #unidades estao erradas par apoder fazer a transformacao é K/s
+    v_advec_thil_u =   units.Quantity(exp.vertdivT[:,::-1,0,0],'kelvin')
+
+    v_advec_thil   =   metpy.calc.potential_temperature(pressure_u,v_advec_thil_u).magnitude
+
+    v_advec_thil_u =   units.Quantity(v_advec_thil,'kelvin/s') 
+
 
     #
     Tg_u          =   units.Quantity(exp.Tg[:,0,0],'kelvin')
@@ -152,15 +145,17 @@ def variables_metpy_scm_ccpp(exp):
     #zi          =   metpy.calc.pressure_to_height_std(pressureu) 
     
 
+
     #Sensible upwardheat flux 
     SH          =   exp.shflx[:,0,0] 
     #convert to Km/s
-    SH_u = SH*ffc.R_dry*Tg_u/(ffc.c_p*p_sur_u) #convert to Km/s
+    SH = SH*ffc.R_dry*Tg_u/(ffc.c_p*p_sur_u) #convert to Km/s
+
 
     #Latent upward heat flux 
     LH          =   exp.lhflx[:,0,0]
     #convert to Km/s
-    LH_u = LH*ffc.R_dry*Tg_u/(ffc.L_v*p_sur_u) #convert to Km/s
+    LH          = LH*ffc.R_dry*Tg_u/(ffc.L_v*p_sur_u) #convert to Km/s
 
     SH_u=   units.Quantity(SH,'km/s')
     LH_u=   units.Quantity(LH,'km/s')
@@ -185,8 +180,7 @@ def variables_metpy_scm_ccpp(exp):
 
     Tv_u      =   metpy.calc.virtual_temperature(T_u, q_u).to('kg*K/kg')
 
-    z=z_u.magnitude
-
+    #z=z_u.magnitude
     #Calcula ao contrario o z de cima para baixo
     #z       =   metpy.calc.add_pressure_to_height(z, pressureu)
 
@@ -205,31 +199,41 @@ def variables_metpy_scm_ccpp(exp):
             z_u[k,i]   =  R_d*Tv_u[k,i]/g*np.log(pressure_u[i-1]/pressure_u[i])+z_u[k,i-1]    
 
 
+    #ql and tke are not specified; set to zero
+    ql          = np.zeros((ndlev,ndtp),dtype=float)
+    qi          = np.zeros((ndlev,ndtp),dtype=float)
+    tke         = np.zeros((ndlev,ndtp),dtype=float)
+    u_g         = np.zeros((ndlev,ndtp),dtype=float)
+    v_g         = np.zeros((ndlev,ndtp),dtype=float)
+    rad_heating = np.zeros((ndlev,ndtp),dtype=float)
+
 
     #T_abs = np.flipud(np.swapaxes(T_abs, 0, 1))
-    T      =np.swapaxes(    T_u.magnitude,0,1) 
-    theta  =np.swapaxes(theta_u.magnitude,0,1)
-    q      =np.swapaxes(    q_u.magnitude,0,1)
-    t_ls   =np.swapaxes( t_ls_u.magnitude,0,1)
-    vTadv  =np.swapaxes(vTadv_u.magnitude,0,1)
-    dTdt   =np.swapaxes( dTdt_u.magnitude,0,1)
-    q_ls   =np.swapaxes( q_ls_u.magnitude,0,1)
-    vqadv  =np.swapaxes(vqadv_u.magnitude,0,1)
-    dqdt   =np.swapaxes( dqdt_u.magnitude,0,1)
-    s_ls   =np.swapaxes( s_ls_u.magnitude,0,1) 
-    vsadv  =np.swapaxes(vsadv_u.magnitude,0,1)
-    dsdt   =np.swapaxes( dsdt_u.magnitude,0,1) 
-    omega  =np.swapaxes(omega_u.magnitude,0,1) 
-    u      =np.swapaxes(    u_u.magnitude,0,1)
-    v      =np.swapaxes(    v_u.magnitude,0,1)
-    w      =np.swapaxes(    w_u.magnitude,0,1)
-    phi    =np.swapaxes(  phi_u.magnitude,0,1)
-    pressure=pressure_u.magnitude
-    Tg     =   Tg_u.magnitude
-    p_sur  =p_sur_u.magnitude
-    z      =z_u[0,:].magnitude
-    SH     =SH_u.magnitude
-    LH     =LH_u.magnitude
+    T           =np.swapaxes(           T_u.magnitude,0,1) 
+    theta       =np.swapaxes(       theta_u.magnitude,0,1)
+    q           =np.swapaxes(           q_u.magnitude,0,1)
+    t_ls        =np.swapaxes(        t_ls_u.magnitude,0,1)
+    vTadv       =np.swapaxes(       vTadv_u.magnitude,0,1)
+    dTdt        =np.swapaxes(        dTdt_u.magnitude,0,1)
+    h_advec_thil=np.swapaxes(h_advec_thil_u.magnitude,0,1)
+    v_advec_thil=np.swapaxes(v_advec_thil_u.magnitude,0,1)
+    q_ls        =np.swapaxes(        q_ls_u.magnitude,0,1)
+    vqadv       =np.swapaxes(       vqadv_u.magnitude,0,1)
+    dqdt        =np.swapaxes(        dqdt_u.magnitude,0,1)
+    s_ls        =np.swapaxes(        s_ls_u.magnitude,0,1) 
+    vsadv       =np.swapaxes(       vsadv_u.magnitude,0,1)
+    dsdt        =np.swapaxes(        dsdt_u.magnitude,0,1) 
+    u           =np.swapaxes(           u_u.magnitude,0,1)
+    v           =np.swapaxes(           v_u.magnitude,0,1)
+    w           =np.swapaxes(           w_u.magnitude,0,1)
+    omega       =np.swapaxes(       omega_u.magnitude,0,1) 
+    phi         =phi_u.magnitude
+    pressure    =pressure_u.magnitude
+    Tg          =Tg_u.magnitude
+    p_sur       =p_sur_u.magnitude
+    z           =z_u[0,:].magnitude
+    SH          =SH_u.magnitude
+    LH          =LH_u.magnitude
 
     return T ,theta,q,ql,qi,tke,\
            t_ls,vTadv,dTdt,h_advec_thil,\
