@@ -34,24 +34,21 @@ matplotlib.use("TkAgg")
 #read in raw ARM SGP 1997 summer data input file
 
 
+exp=iop2
+
 case_period_labels = ['A']
 
-case_period_start_datetimes = [cf.datetime(2014,1,15 ,0,0,0),
+case_period_start_datetimes = [cf.datetime(2014,9,1 ,0,0,0),
                               ]
-case_period_end_datetimes =   [cf.datetime(2014,3,25 ,0,0,0),
+case_period_end_datetimes =   [cf.datetime(2014,10,10 ,0,0,0),
                               ]
 
 lat   = -3.15000 #degrees north
 lon   = -60.0    #degrees E
 z_sfc = 63 # [m]
 
-#lat   = iop1.lat[0]#degrees north
-#lon   = iop1.lon[0]
 
-
-#ncdump to look at raw input file
-#nc_attrs, nc_dims, nc_vars = ffc.ncdump(nc_fid, False)
-
+time=exp.tsec[:]
 
 T_abs,thetal,qt,ql,qi,tke,\
 h_advec_T ,v_advec_thil ,dT_dt ,h_advec_thil, \
@@ -59,50 +56,16 @@ h_advec_qt,v_advec_qt,dq_dt,\
 h_advec_s ,v_advec_s ,ds_dt ,rad_heating,\
 u_wind,v_wind,u_g,v_g,w_sub,omega,\
 phi_s,T_surf,p_surf,height,\
-levels,sh_flux_sfc,lh_flux_sfc=cal.variables_metpy_scm_ccpp(iop1)
+levels,sh_flux_sfc,lh_flux_sfc=cal.variables_metpy_scm_ccpp(exp)
 
-
-#fig   = plt.figure()
-#ax    = plt.axes()
-#plt.plot(v_advec_T[:,100:130],height[:])
-
-#fig   = plt.figure()
-#ax    = plt.axes()
-##plt.plot(levels,height[:])
-#plt.plot(time[:],lh_flux_sfc[:])
-#plt.show
-#exit()
 
 o3=std.call_read_atm(trop_atm,levels,T_abs)
-#o3=std.call_read_atm(mls_atm,levels,T_abs)
-#nc_fid_o3 = Dataset("../../data/raw_case_input/mid_lat_summer_std.nc", 'r')
-
-#oz_pres = nc_fid_o3.variables['pressure'][:]
-#oz_data = nc_fid_o3.variables['o3']
-
-#oz_pres[0]=levels[0]
-#oz_f = scipy.interpolate.interp1d(oz_pres, oz_data)
-#
-#o3 = oz_f(levels[:].tolist())
-
-#exit()
-#
 
 
-#fig   = plt.figure()
-#ax    = plt.axes()
-#plt.plot(o3,height)
-#
-#plt.show()
-#exit()
-
-time=iop1.tsec[::1]
-data_datetimes = iop1.data[::1]
+time=exp.tsec[::1]
+data_datetimes = exp.data[::1]
 
 
-#for t in timestamps:
-#    data_datetimes.append(datetime.datetime.utcfromtimestamp(t))
-#
 case_period_start_indices = []
 case_period_end_indices   = []
 
@@ -124,8 +87,8 @@ for i in range(len(case_period_labels)):
     
     #open processed input file for writing
 
-    writefile_fid = Dataset('../../data/processed_case_input/goamazon_iop1_{}.nc'.format(case_period_labels[i]), 'w', format='NETCDF4')
-    writefile_fid.description = "CCPP SCM forcing file for the GOAMAZON 2014 IOP1 case (Period {})\n Created by: Jhonatan A. A. Manco\n Data:03/11/23".format(case_period_labels[i])
+    writefile_fid = Dataset('../../data/processed_case_input/goamazon_iop2_{}.nc'.format(case_period_labels[i]), 'w', format='NETCDF4')
+    writefile_fid.description = "CCPP SCM forcing file for the GOAMAZON 2014 IOP2 case (Period {})\n Created by: Jhonatan A. A. Manco\n Data:03/11/23".format(case_period_labels[i])
 
     #create groups for scalars, intitialization, and forcing
 
