@@ -1,5 +1,5 @@
 $case_config
-case_name = 'goamazon_iop1_A',
+case_name = 'goamazon_iop2_A',
 runtime = 3456000,
 thermo_forcing_type = 1,
 mom_forcing_type = 3,
