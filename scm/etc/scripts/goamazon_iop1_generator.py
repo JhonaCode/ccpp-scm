@@ -319,6 +319,8 @@ for i in range(len(case_period_labels)):
     #close processed input file
     writefile_fid.close()
     
+####
+print("END")
 
 #close raw input file
 #writefile_fid.close()

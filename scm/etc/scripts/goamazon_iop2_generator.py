@@ -38,7 +38,7 @@ exp=iop2
 
 case_period_labels = ['A']
 
-case_period_start_datetimes = [cf.datetime(2014,9,1 ,0,0,0),
+case_period_start_datetimes = [cf.datetime(2014,8,1 ,0,0,0),
                               ]
 case_period_end_datetimes =   [cf.datetime(2014,10,10 ,0,0,0),
                               ]
@@ -282,6 +282,8 @@ for i in range(len(case_period_labels)):
     #close processed input file
     writefile_fid.close()
     
+####
+print("END")
 
 #close raw input file
 #writefile_fid.close()
