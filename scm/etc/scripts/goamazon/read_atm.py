@@ -26,7 +26,7 @@ def call_read_atm(file,levels,T):
     #mg/m^3=ppmv*Mw/(0.082057338*T[k])
     for i in range(0,levels.size):
     
-        o3[i]=o3[i]*48/(1e6*2.14*(T[0,i])*0.082057338)
+        o3[i]=o3[i]*48/(1e6*2.14*(T[i,0])*0.082057338)
        
     return o3
     
