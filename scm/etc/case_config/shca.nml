@@ -1,0 +1,16 @@
+$case_config
+case_name = 'shca',
+runtime = 21600,
+thermo_forcing_type = 2,
+mom_forcing_type = 3,
+relax_time = 7200.0,
+sfc_flux_spec = .true.,
+sfc_roughness_length_cm = 0.012,
+sfc_type = 0,
+reference_profile_choice = 1,
+year = 2014,
+month = 1,
+day = 1,
+hour =0,
+column_area = 2.0E9,
+$end
